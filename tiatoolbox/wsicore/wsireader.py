@@ -1786,7 +1786,7 @@ def get_wsireader(input_img):
         if suffix in (".jpg", ".png", ".tif"):
             wsi = VirtualWSIReader(input_img)
 
-        elif suffix in (".svs", ".ndpi", ".mrxs"):
+        elif suffix in (".svs", ".ndpi", ".mrxs", ".tiff"):
             wsi = OpenSlideWSIReader(input_img)
 
         elif suffix == ".jp2":
