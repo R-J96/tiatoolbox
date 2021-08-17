@@ -408,6 +408,8 @@ class CNNPatchPredictor:
         save_dir=None,
         classification_heads="all",
     ):
+        # TODO update docstring to include classification heads
+        # and output neuron class correspondance map
         """Make a prediction for a list of input data.
 
         Args:
@@ -483,6 +485,9 @@ class CNNPatchPredictor:
             raise ValueError(
                 f"{mode} is not a valid mode. Use either `patch`, `tile` or `wsi`"
             )
+        # change which classification heads are activated
+        # if classification_heads != "all":
+
         if mode == "patch" and labels is not None:
             # if a labels is provided, then return with the prediction
             return_labels = bool(labels)
