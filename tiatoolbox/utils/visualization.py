@@ -36,14 +36,21 @@ def overlay_patch_prediction(
     """Generate an overlay, given a 2D prediction map.
 
     Args:
-        img (ndarray): Input image to overlay the results on top of.
+        img (ndarray): Input image to overlay the results on top of. Should be a slide
+        thumbnail at the same resolution as the tiles extracted from the original WSI
+        so the coordinates match.
         prediction (ndarray): 2D prediction map. Multi-class prediction should have
             values ranging from 0 to N-1, where N is the number of classes.
         label_info (dict): A dictionary contains the mapping for each integer value
             within `prediction` to its string and color. [int] : (str, (int, int, int)).
+            Default to dictionary for kather100k dataset with 9 classes.
             By default, integer will be taken as label and color will be random.
         alpha (float): Opacity value used for the overlay.
         ax (ax): Matplotlib ax object.
+
+    Returns:
+        overlay (ndarray): Output overlay image.
+        colorbar_params (dict): Dictionary containing color parameters used in display.
     """
     if img.shape[:2] != prediction.shape[:2]:
         raise ValueError(
