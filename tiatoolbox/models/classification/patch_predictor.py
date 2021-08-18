@@ -408,8 +408,6 @@ class CNNPatchPredictor:
         save_dir=None,
         classification_heads="all",
     ):
-        # TODO update docstring to include classification heads
-        # and output neuron class correspondance map
         """Make a prediction for a list of input data.
 
         Args:
@@ -456,6 +454,11 @@ class CNNPatchPredictor:
                 whole-slide images. By default, it is folder `output` where the
                 running script is invoked.
 
+            classification_heads (str, list): List of classification heads to use
+                in classification. Weights of other classification heads are set to 0.
+                By default uses all 9 classification heads when the string 'all'
+                is passed.
+
         Returns:
             output (ndarray, dict): Model predictions of the input dataset.
                 If multiple image tiles or whole-slide images are provided as input,
@@ -467,6 +470,17 @@ class CNNPatchPredictor:
                     - raw: path to save location for raw prediction, saved in .json.
                     - merged: path to .npy contain merged predictions if
                     `merge_predictions` is `True`.
+
+                Class mapping is as follows:
+                - 0 -> BACK
+                - 1 -> NORM
+                - 2 -> DEB
+                - 3 -> TUM
+                - 4 -> ADI
+                - 5 -> MUC
+                - 6 -> MUS
+                - 7 -> STR
+                - 8 -> LYM
 
                 For example
                 >>> wsis = ['wsi1.svs', 'wsi2.svs']
@@ -485,8 +499,14 @@ class CNNPatchPredictor:
             raise ValueError(
                 f"{mode} is not a valid mode. Use either `patch`, `tile` or `wsi`"
             )
-        # change which classification heads are activated
-        # if classification_heads != "all":
+        # change which classification heads are activated unless in all mode
+        if classification_heads != "all":
+            all_classes = [x for x in range(9)]
+            remove_classes = [x for x in all_classes if x not in classification_heads]
+            classifier_layer = self.model.classifer
+            for neuron in remove_classes:
+                classifier_layer.weight.data[neuron].fill_(0.0)
+            self.model.classifer = classifier_layer
 
         if mode == "patch" and labels is not None:
             # if a labels is provided, then return with the prediction
@@ -605,6 +625,8 @@ class CNNPatchPredictor:
                 else:
                     output = outputs
             output = file_dict if len(imgs) > 1 else output
+            output["resolution"] = resolution
+            output["units"] = units
 
         return output
 
